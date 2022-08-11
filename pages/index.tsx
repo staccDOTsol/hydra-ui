@@ -1,5 +1,6 @@
 import { Header } from 'common/Header'
 import type { NextPage } from 'next'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 import { useState } from 'react'
@@ -14,7 +15,7 @@ const Home: NextPage = () => {
       <Header />
       <main className="h-[80%] flex flex-1 flex-col justify-center items-center">
         <div className="block uppercase tracking-wide text-gray-700 text-lg font-bold mb-6">
-          Welcome to Hydra UI
+          Wrong place, dummy! Nothing to see here!
         </div>
         <form
           className="w-full max-w-lg"
@@ -36,37 +37,17 @@ const Home: NextPage = () => {
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="grid-first-name"
             >
-              Wallet Name
+              wat
             </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="grid-first-name"
-              onSubmit={() => alert('HEr')}
-              type="text"
-              placeholder="cardinal-wallet"
-              onChange={(e) => {
-                setWalletName(e.target.value)
-              }}
-              value={walletName}
-            />
-            <span className="text-xs mt-1 mb-3 block text-gray-400 italic">We currently only support Hydra wallets of membership model Wallet</span>
+            <button    className="bg-blue-400 text-white hover:bg-blue-500 px-4 py-3 rounded-md float-right cursor-pointer"
+>
+              
+            <Link href="https://hackblock.space"
+                        
+            >Link href="https://hackblock.space" value="getmeouttahere"</Link> </button>
+            <span className="text-xs mt-1 mb-3 block text-gray-400 italic"></span>
             <div>
-              <div
-                className="bg-blue-400 text-white hover:bg-blue-500 px-4 py-3 rounded-md float-right cursor-pointer"
-                onClick={() => {
-                  router.push(
-                    `/${walletName}${
-                      ctx.environment.label !== 'mainnet-beta'
-                        ? `?cluster=${ctx.environment.label}`
-                        : ''
-                    }`,
-                    undefined,
-                    { shallow: true }
-                  )
-                }}
-              >
-                Load Hydra Wallet
-              </div>
+             
             </div>
           </div>
         </form>

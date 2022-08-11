@@ -21,7 +21,7 @@ import { paymentMintConfig } from 'config/paymentMintConfig'
 import { FanoutData, useFanoutData } from 'hooks/useFanoutData'
 import { useFanoutMembershipMintVouchers } from 'hooks/useFanoutMembershipMintVouchers'
 import { useFanoutMembershipVouchers } from 'hooks/useFanoutMembershipVouchers'
-import { useFanoutMints } from 'hooks/useFanoutMints'
+import { FanoutMintData, useFanoutMints } from 'hooks/useFanoutMints'
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
@@ -30,8 +30,43 @@ import { useEffect, useState } from 'react'
 const Home: NextPage = () => {
   const router = useRouter()
   const [mintId, setMintId] = useState<string | undefined>()
+  var [shares, setShares] = useState("1.38");
+  const someToks = ["AD1bo7F21Cy8sfUkYXEBLJTTXA7Z8NREwMX1pZBgLakq","Fq1ZUCxZYWcEJdtN48zmhMkpVYCYCBSrnNU351PFZwCG",("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
+  ("8HGyAAB1yoM1ttS7pXjHMa3dukTFGQggnFFH3hJZgzQh"),
+  ("8upjSpvjcdpuzhfR1zriwg5NXkwDruejqNE9WNbPRtyA"),
+  ("PRSMNsEPqhGVCH1TtWiJqPjJyh2cKrLostPZTNy1o5x")
+  ,"openDKyuDPS6Ak1BuD3JtvkQGV3tzCxjpHUfe1mdC79"  ]
+const someDecs = [9,9,6,
+6,
+6,
+6, 9
+]
+
+let hmms = [
+  'staccbo7', 'staccZUC','staccFWd','staccyAA','staccjSp','staccMNs','staccnDK' 
+]
+let hmms2 = [
+  "War & Peace",
+  "Gamin",
+
+  "USDC",
+  "COPE",
+  "Grape" ,
+  "PRISM" ,
+"OPEN" 
+]
+let someBlargs2 : any = {}
+let someBlargs: any = {}
+for (var i in someToks){
+  // @ts-ignore
+  someBlargs[hmms2[i]] = someDecs[i]
+  // @ts-ignore
+  someBlargs2[hmms2[i]] = someToks[i]
+} 
+let thedec: number
   const fanoutMembershipVouchers = useFanoutMembershipVouchers()
   const fanoutMints = useFanoutMints()
+  const [hi, setHi] = useState("")
   const wallet = useWallet()
   const fanoutData = useFanoutData()
   const { connection, environment } = useEnvironmentCtx()
@@ -43,6 +78,138 @@ const Home: NextPage = () => {
   const [voucherMapping, setVoucherMapping] = useState<{
     [key: string]: string
   }>({})
+  const [hm, setHm]  = useState("")
+  async function onChange(e: any){
+    e.preventDefault()
+    console.log(e.target.value)
+    setShares(e.target.value)
+    }
+   
+    async function claim(){
+      const anchor = router.asPath.split('#')[1]
+
+      const mintPublicKey = fanoutMints.data?.find(
+        (fanoutMint) =>
+          fanoutMint.config.symbol === anchor ||
+          fanoutMint.id.toString() === anchor
+      )
+      setHm(mintPublicKey?.data.mint.toBase58() as string)
+    
+      thedec = someBlargs[hi]
+      if (wallet){    var fanoutSdk: FanoutClient;
+        const fanoutSdk = new FanoutClient(connection, asWallet(wallet!))
+
+    var ix3= await fanoutSdk.distributeTokenMemberInstructions(//{fanout,mint:WRAPPED_SOL_MINT,payer:fanoutSdk.wallet.publicKey})// .distributeTokenMember(
+    {
+    
+         
+      distributeForMint: false,
+      fanout: fanoutData.data?.fanoutId as PublicKey,
+      
+      membershipMint:new PublicKey(someBlargs2[hi]),
+      member: fanoutSdk.wallet.publicKey as PublicKey,
+      payer: fanoutSdk.wallet.publicKey as PublicKey
+    
+    }
+    );
+    
+    var ix4= await fanoutSdk.distributeTokenMemberInstructions(//{fanout,mint:WRAPPED_SOL_MINT,payer:fanoutSdk.wallet.publicKey})// .distributeTokenMember(
+      {
+      
+           
+        distributeForMint: true,
+        fanoutMint: (mintPublicKey as FanoutMintData).data?.mint,
+        fanout: fanoutData.data?.fanoutId as PublicKey,
+        
+        membershipMint:new PublicKey(someBlargs2[hi]),
+        member: fanoutSdk.wallet.publicKey as PublicKey,
+        payer: fanoutSdk.wallet.publicKey as PublicKey
+      
+      }
+      ); 
+    await fanoutSdk.sendInstructions([...ix3.instructions, ...ix4.instructions], [], fanoutSdk.wallet.publicKey as PublicKey)
+    }
+    }
+    async function doit(){
+      const anchor = router.asPath.split('#')[1]
+
+      const mintPublicKey = fanoutMints.data?.find(
+        (fanoutMint) =>
+          fanoutMint.config.symbol === anchor ||
+          fanoutMint.id.toString() === anchor
+      )
+      // @ts-ignore
+      thedec = someBlargs[hi]
+    if (wallet){
+    
+      var fanoutSdk: FanoutClient;
+      const fanoutSdk = new FanoutClient(connection, asWallet(wallet!))
+
+  
+    console.log( (parseFloat(shares) * 10 ** thedec))
+    console.log(  {
+              
+      shares:  (parseFloat(shares) * 10 ** thedec),
+      fanout: fanoutData.data?.fanout.accountKey,
+      
+      membershipMint:new PublicKey(someBlargs2[hi]),
+     // @ts-ignore
+      member: fanoutSdk.wallet.publicKey as PublicKey,
+      // @ts-ignore
+      payer: fanoutSdk.wallet.publicKey as PublicKey
+  })
+    var  ixs = await fanoutSdk.stakeTokenMemberInstructions(
+          {
+              
+              shares:  (parseFloat(shares) * 10 ** thedec),
+              fanout: fanoutData.data?.fanoutId as PublicKey,
+              
+              membershipMint:new PublicKey(someBlargs2[hi]),
+             // @ts-ignore
+              member: fanoutSdk.wallet.publicKey as PublicKey,
+              // @ts-ignore
+              payer: fanoutSdk.wallet.publicKey as PublicKey
+          }
+      );var tx = await fanoutSdk.sendInstructions(
+        ixs.instructions,
+        [],
+        // @ts-ignore
+        fanoutSdk.wallet.publicKey
+    );
+    
+    }
+    }
+    
+    /*
+    console.log(321)
+    const { info: tokenBonding2 } = useTokenBondingFromMint(mintPublicKey);
+    const { price: price2, loading: l2 } = useLivePrice(tokenBonding2?.publicKey);
+    if (price2){
+      if (!l2 && !isNaN(price2)){
+     // console.log(price2)
+      }
+    }
+    */
+    async function us(){
+    
+      if (wallet){
+        var fanoutSdk: FanoutClient;
+        const fanoutSdk = new FanoutClient(connection, asWallet(wallet!))
+
+      
+      await fanoutSdk.unstakeTokenMember({
+        fanout: fanoutData.data?.fanoutId as PublicKey,
+        
+        // @ts-ignore
+        member: fanoutSdk.wallet.publicKey as PublicKey,
+        // @ts-ignore
+        payer: fanoutSdk.wallet.publicKey as PublicKey
+    }
+    );
+      }
+    
+    }
+  
 
   useEffect(() => {
     const anchor = router.asPath.split('#')[1]
@@ -53,6 +220,16 @@ const Home: NextPage = () => {
     )
     if (fanoutMint?.data.mint && fanoutMint?.data.mint.toString() !== mintId) {
       selectSplToken(fanoutMint?.data.mint.toString())
+    }
+    if (fanoutData.data){
+      for (var h in hmms){
+        console.log((fanoutData.data?.fanout.name as string).replace('stacc','').toString().toLowerCase())
+        // @ts-ignore
+        if (hmms[h].toLowerCase().indexOf((fanoutData.data?.fanout.name as string).replace('stacc','').toString().toLowerCase()) != -1){
+          // @ts-ignore
+         setHi(hmms2[h]) 
+        }
+      }
     }
   }, [
     router,
@@ -147,7 +324,7 @@ const Home: NextPage = () => {
                     distributeForMint: selectedFanoutMint ? true : false,
                     member: voucher.parsed.membershipKey,
                     fanout: fanoutData.fanoutId,
-                    payer: wallet.publicKey,
+                    payer: fanoutSdk.wallet.publicKey as PublicKey,
                   })
                 transaction.instructions = [
                   ...transaction.instructions,
@@ -183,9 +360,9 @@ const Home: NextPage = () => {
           let transaction = new Transaction()
           let distMember = await fanoutSdk.distributeWalletMemberInstructions({
             distributeForMint: false,
-            member: wallet.publicKey,
+            member: fanoutSdk.wallet.publicKey as PublicKey,
             fanout: fanoutData.fanoutId,
-            payer: wallet.publicKey,
+            payer: fanoutSdk.wallet.publicKey as PublicKey,
           })
           transaction.instructions = [...distMember.instructions]
           await executeTransaction(connection, asWallet(wallet), transaction, {
@@ -241,7 +418,7 @@ const Home: NextPage = () => {
           <div className="mb-5 border-b-2">
             <div className="font-bold uppercase tracking-wide text-2xl mb-1">
               {fanoutData.data?.fanout.name ? (
-                fanoutData.data?.fanout.name
+                <div>{hi}</div>
               ) : (
                 <div className="animate h-6 w-24 animate-pulse bg-gray-200 rounded-md"></div>
               )}
@@ -310,7 +487,18 @@ const Home: NextPage = () => {
               >
                 {shortPubKey(fanoutData.data?.fanoutId.toString())}
               </a>
-            </p>
+            </p>{ hm &&  <p className="font-bold uppercase tracking-wide text-md mb-1">
+              Wat Stake Address:{' '}
+              <a
+                className="hover:text-blue-500 transition"
+                target="_blank"
+                rel="noopener noreferrer"
+                href={pubKeyUrl(new PublicKey(hm as string), environment.label)}
+              >
+                {shortPubKey(hm.toString())}
+              </a>
+            </p> }
+            
             {selectedFanoutMint ? (
               <p className="font-bold uppercase tracking-wide text-md mb-1">
                 {selectedFanoutMint.config.symbol} Wallet Token Account:{' '}
@@ -402,6 +590,15 @@ const Home: NextPage = () => {
             <p className="font-bold uppercase tracking-wide text-md mb-1">
               Total Shares: {fanoutData.data?.fanout?.totalShares.toString()}
             </p>
+        <button onClick={claim} >Distribute to Self</button> <br/> <br/>
+        Shares to deposit?
+      
+{ // @ts-ignore 
+      <div>  <br />   <input  style={{color:"black", fontSize: "30px;", backgroundColor: "grey"}} type="text" onInput={onChange} value={shares} /><br /> 
+</div>}<br/> <br/>
+        <button  onClick={doit} >STAKEme</button>
+        <br/> <br/>
+<button  onClick={us} >UNSTAKEALLme</button>
           </div>
           <div className="flex">
             <AsyncButton
